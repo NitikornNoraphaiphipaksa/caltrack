@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <!-- Chart.js สำหรับกราฟ -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
   <style>
     :root { --pad:14px; --radius:14px; --fg:#111; --muted:#666; --line:#e8e8e8; }
@@ -68,7 +68,7 @@
     <section class="card">
       <h3 style="margin:0 0 8px">เพิ่มเมนูโปรด</h3>
       <div class="row">
-        <input id="foodName" placeholder="ชื่ออาหาร เช่น อกไก่ปั่น" style="flex:1">
+        <input id="foodName" list="nameSuggestions" placeholder="ชื่ออาหาร เช่น อกไก่ปั่น" style="flex:1">
       </div>
       <div class="row">
         <select id="unit" style="flex:1;min-width:140px">
@@ -155,12 +155,11 @@
   const save = (k,v)=> localStorage.setItem(k, JSON.stringify(v));
 
   // ─── ข้อมูลหลัก ─────────────────────────────────────────────
-  const FOODS_URL = './foods.json'; // ถ้าเก็บในโฟลเดอร์ data ให้เปลี่ยนเป็น './data/foods.json'
-
-  let foods = load(LS.foods, null);              // ถ้าเคยมีในเครื่อง ใช้ของเดิม
+  const FOODS_URL = './foods.json'; // ถ้าเก็บใน data/ ให้เปลี่ยนเป็น './data/foods.json'
+  let foods = load(LS.foods, null);     // ถ้าเคยมีในเครื่อง ใช้ของเดิมก่อน
   let entries = load(LS.entries, []);
   let settings = load(LS.settings, { daily_goal_kcal: 1800 });
-  let manualNames = load(LS.names, []);          // เก็บชื่อที่เคยกรอกเอง ไว้ทำ suggestion
+  let manualNames = load(LS.names, []); // เก็บชื่อที่คุณเคยกรอกเอง (สำหรับ suggestion)
 
   async function fetchFoodsFromJson() {
     try {
@@ -171,6 +170,22 @@
       console.warn('โหลด foods.json ไม่ได้:', e);
       return null;
     }
+  }
+
+  // ─── Suggestions (รวมจาก foods + manualNames) ──────────────
+  function renderNameSuggestions(){
+    const dl = document.getElementById('nameSuggestions');
+    if (!dl) return;
+    dl.innerHTML = '';
+    const uniq = new Set([
+      ...foods.map(f => f.name).filter(Boolean),
+      ...manualNames
+    ]);
+    [...uniq].sort((a,b)=>a.localeCompare(b,'th')).forEach(n=>{
+      const opt = document.createElement('option');
+      opt.value = n;
+      dl.appendChild(opt);
+    });
   }
 
   // ─── Favorites dropdown + quick + delete ────────────────────
@@ -202,7 +217,7 @@
       foods = foods.filter(x=>x.id!==f.id);
       save(LS.foods, foods);
       renderFavDropdown();
-      renderNameSuggestions();
+      renderNameSuggestions(); // อัปเดตคำแนะนำหลังลบ
     }
   };
 
@@ -219,25 +234,21 @@
     foods.push({id,name,unit,kcal_per_unit,base_amount,quick_amounts:quickAmts});
     save(LS.foods, foods);
     $('#foodName').value=''; $('#kcalPerUnit').value=''; $('#baseAmount').value=''; $('#quickAmts').value='';
-    renderFavDropdown(); renderNameSuggestions();
+    renderFavDropdown();
+    renderNameSuggestions(); // อัปเดตคำแนะนำหลังเพิ่ม
   }
   $('#addFood').onclick = addFood;
-
-  // ─── Suggestion (ชื่อเมนู) ─────────────────────────────────
-  function renderNameSuggestions(){
-    const dl = $('#nameSuggestions'); dl.innerHTML = '';
-    const uniq = new Set([...foods.map(f=>f.name), ...manualNames]);
-    [...uniq].sort().forEach(n=>{
-      const opt = document.createElement('option'); opt.value = n; dl.appendChild(opt);
-    });
-  }
 
   // ─── บันทึกแบบกรอกเอง ─────────────────────────────────────
   function addManual(){
     const name = $('#manualName').value.trim();
     const kcal = Number($('#manualKcal').value);
     if(!name || !kcal || kcal<=0){ alert('กรอกชื่อเมนูและ kcal ให้ถูกต้อง'); return; }
-    if(!manualNames.includes(name)){ manualNames.push(name); save(LS.names, manualNames); renderNameSuggestions(); }
+    if(!manualNames.includes(name)){
+      manualNames.push(name);
+      save(LS.names, manualNames);
+      renderNameSuggestions(); // อัปเดตคำแนะนำเมื่อมีชื่อใหม่
+    }
     const entry = { _id: crypto.randomUUID(), date: todayISO, created_at:new Date().toISOString(),
       manual_name: name, amount: '', kcal: Math.round(kcal) };
     entries.push(entry); save(LS.entries, entries);
@@ -340,14 +351,14 @@
   $('#btnPrev').onclick = ()=>{ startOffset+=1; updateChart(); };
   $('#btnNow').onclick  = ()=>{ startOffset=0;  updateChart(); };
 
-  // ─── เซ็ตค่าเริ่มต้นแอป (โหลด foods.json ถ้าจำเป็น) ───────
+  // ─── เริ่มต้นแอป (โหลด foods.json ถ้าจำเป็น) ───────────────
   async function initApp(){
     if(!foods){
       const fromJson = await fetchFoodsFromJson();
       if(fromJson && Array.isArray(fromJson) && fromJson.length){
         foods = fromJson; save(LS.foods, foods);
       }else{
-        // Fallback กันพังถ้าโหลดไม่ได้
+        // fallback กันพัง
         foods = [
           { id:'chicken_shake', name:'อกไก่ปั่น', unit:'serving', kcal_per_unit:300, base_amount:1,   quick_amounts:[1] },
           { id:'natto',         name:'นัตโตะ',    unit:'g',       kcal_per_unit:100, base_amount:50,  quick_amounts:[50,100,150] },
@@ -357,8 +368,10 @@
       }
     }
 
-    renderFavDropdown(); renderNameSuggestions();
+    renderFavDropdown();
+    renderNameSuggestions();   // ← สำคัญ: เติม datalist จาก foods.json
     renderEntries(); renderGoal();
+
     if(window.Chart){ buildChart(); } else { window.addEventListener('load', ()=>{ if(window.Chart) buildChart(); }); }
 
     // PWA: Service Worker & Install
