@@ -23,7 +23,6 @@
     button.ghost{background:#f7f7f7}
     button.danger{background:#fff;border-color:#e33;color:#e33}
     button:active{transform:translateY(1px)}
-    .quick button{padding:10px 12px}
     .muted{color:var(--muted);font-size:13px}
     table{width:100%;border-collapse:collapse}
     th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left}
@@ -62,8 +61,9 @@
       <p id="todaySummary" class="muted" style="margin:10px 0 0"></p>
     </section>
 
+    <!-- เพิ่มเมนูโปรดใหม่ -->
     <section class="card">
-      <h3 style="margin:0 0 8px">เพิ่มเมนูประจำ</h3>
+      <h3 style="margin:0 0 8px">เพิ่มเมนูโปรด</h3>
       <div class="row">
         <input id="foodName" placeholder="ชื่ออาหาร เช่น อกไก่ปั่น" style="flex:1">
       </div>
@@ -84,34 +84,46 @@
       </p>
     </section>
 
+    <!-- รายการโปรดเป็น Dropdown + Quick amounts -->
     <section class="card">
-      <h3 style="margin:0 0 8px">รายการโปรด (กดปุ่มเพื่อบันทึกกิน)</h3>
-      <div id="foods"></div>
+      <h3 style="margin:0 0 8px">รายการโปรด (เลือกจาก Dropdown แล้วกดจำนวน)</h3>
+      <div class="row">
+        <select id="favSelect" style="flex:2"></select>
+        <button id="deleteFav" class="danger">ลบเมนูนี้</button>
+      </div>
+      <div class="row" id="favQuickRow" style="margin-top:8px"></div>
     </section>
 
+    <!-- บันทึกแบบกรอกเอง (Manual) -->
+    <section class="card">
+      <h3 style="margin:0 0 8px">บันทึกแบบกรอกเอง (Manual)</h3>
+      <div class="row">
+        <input id="manualName" list="nameSuggestions" placeholder="ชื่อเมนู เช่น อกไก่, ไก่ปั่น" style="flex:2">
+        <datalist id="nameSuggestions"></datalist>
+        <input id="manualKcal" type="number" inputmode="decimal" placeholder="kcal ทั้งเมนู" style="flex:1;min-width:140px">
+        <button id="addManual" class="primary">บันทึก</button>
+      </div>
+      <p class="muted" style="margin-top:6px">เหมาะกับเมนูที่ไม่ได้อยู่ในรายการโปรด พิมพ์ชื่อ + ใส่ kcal แล้วกดบันทึก</p>
+    </section>
+
+    <!-- ตารางวันนี้ -->
     <section class="card">
       <h3 style="margin:0 0 8px">บันทึกวันนี้</h3>
-      <div class="row">
-        <select id="foodSelect" style="flex:2"></select>
-        <input id="amount" type="number" inputmode="decimal" placeholder="จำนวน (g/เสิร์ฟ)" style="flex:1;min-width:130px">
-        <button id="addEntry" class="primary">บันทึก</button>
-      </div>
-
-      <table style="margin-top:10px">
+      <table>
         <thead><tr><th>เวลา</th><th>เมนู</th><th>จำนวน</th><th>kcal</th><th></th></tr></thead>
         <tbody id="entriesTbody"></tbody>
         <tfoot><tr><th colspan="3">รวมวันนี้</th><th id="sumToday">0</th><th></th></tr></tfoot>
       </table>
-
       <div class="row" style="margin-top:10px">
         <button id="clearToday" class="ghost">ลบรายการ “วันนี้”</button>
       </div>
     </section>
 
+    <!-- กราฟ -->
     <section class="card">
       <h3 style="margin:0 0 8px">กราฟแคลอรี่รายวัน (ย้อนหลัง 30 วัน)</h3>
       <div class="row" style="margin-bottom:6px">
-        <span class="muted">แตะเมนูเพื่อจด → กราฟอัปเดตทันที</span>
+        <span class="muted">แตะ/กรอกเพื่อจด → กราฟอัปเดตทันที</span>
         <div class="space"></div>
         <button id="btnPrev" class="ghost">ย้อนอีก 30 วัน</button>
         <button id="btnNow" class="ghost">กลับมาวันนี้</button>
@@ -123,12 +135,12 @@
   </main>
 
   <div class="fab">
-    <span class="chip">แตะเมนูโปรด ➜ จดทันที</span>
+    <span class="chip">เมนูโปรด ➜ เลือกดรอปดาวน์ / Manual ➜ พิมพ์ชื่อ+kcal</span>
   </div>
 
 <script defer>
   // ─── Storage Keys ────────────────────────────────────────────
-  const LS = { foods:'ctm_foods', entries:'ctm_entries', settings:'ctm_settings' };
+  const LS = { foods:'ctm_foods', entries:'ctm_entries', settings:'ctm_settings', names:'ctm_manual_names' };
 
   // ─── Utils ───────────────────────────────────────────────────
   const $ = s => document.querySelector(s);
@@ -139,7 +151,7 @@
   const load = (k,f)=>{ try{ return JSON.parse(localStorage.getItem(k)) ?? f; }catch{ return f; } }
   const save = (k,v)=> localStorage.setItem(k, JSON.stringify(v));
 
-  // ─── Data (preset ตามที่ขอ) ─────────────────────────────────
+  // ─── Data (preset เริ่มต้นตามที่คุย) ───────────────────────
   let foods = load(LS.foods, [
   {
     "id": "chicken_breast",
@@ -819,68 +831,84 @@
 ]);
   let entries = load(LS.entries, []);
   let settings = load(LS.settings, { daily_goal_kcal: 1800 });
+  let manualNames = load(LS.names, []); // ชื่อที่เคยกรอกเอง
 
   const kcalOf = (food, amount)=> (amount / food.base_amount) * food.kcal_per_unit;
 
-  // ─── Favorites: render + add + delete ───────────────────────
-  function renderFoods(){
-    const wrap = $('#foods'); wrap.innerHTML = '';
-    foods.forEach(f=>{
-      const card = document.createElement('div');
-      card.className = 'card'; card.style.marginBottom='10px';
-
-      // header + delete button
-      const headRow = document.createElement('div');
-      headRow.className = 'row';
-      const title = document.createElement('div');
-      const unitLabel = f.unit==='g' ? 'g' : 'เสิร์ฟ';
-      title.innerHTML = `<strong>${f.name}</strong> <span class="muted">(คำนวณต่อ ${f.base_amount}${unitLabel}: ${f.kcal_per_unit} kcal)</span>`;
-      const delBtn = document.createElement('button');
-      delBtn.className = 'danger';
-      delBtn.textContent = 'ลบเมนูนี้';
-      delBtn.onclick = ()=>{
-        if(confirm(`ลบ "${f.name}" ออกจากรายการโปรด?`)){
-          foods = foods.filter(x=>x.id!==f.id);
-          save(LS.foods, foods);
-          renderFoods();
-          // dropdown ก็ต้องอัปเดตด้วย
-          renderFoodSelect();
-        }
-      };
-      headRow.appendChild(title);
-      headRow.appendChild(delBtn);
-      card.appendChild(headRow);
-
-      // quick buttons
-      const btnRow = document.createElement('div'); btnRow.className = 'row quick';
-      (f.quick_amounts||[]).forEach(q=>{
-        const btn = document.createElement('button');
-        btn.textContent = `${q}${f.unit==='g'?'g':''}`;
-        btn.onclick = ()=> addEntryByFood(f.id, q);
-        btnRow.appendChild(btn);
-      });
-      card.appendChild(btnRow);
-
-      // footer small
-      const foot = document.createElement('div');
-      foot.className='muted'; foot.style.marginTop='6px';
-      foot.textContent = `หน่วยฐาน: ${f.base_amount}${unitLabel} • Quick: ${(f.quick_amounts||[]).join(', ')}`;
-      card.appendChild(foot);
-
-      wrap.appendChild(card);
+  // ─── Suggestions (datalist): foods + manualNames ────────────
+  function renderNameSuggestions(){
+    const dl = $('#nameSuggestions'); dl.innerHTML = '';
+    const uniq = new Set([...foods.map(f=>f.name), ...manualNames]);
+    [...uniq].sort().forEach(n=>{
+      const opt = document.createElement('option'); opt.value = n; dl.appendChild(opt);
     });
-
-    renderFoodSelect();
   }
 
-  function renderFoodSelect(){
-    const sel = $('#foodSelect'); sel.innerHTML = '';
+  // ─── Favorites dropdown + quick amounts + delete ────────────
+  function renderFavDropdown(){
+    const sel = $('#favSelect'); sel.innerHTML = '';
     foods.forEach(f=>{
       const opt = document.createElement('option'); opt.value=f.id; opt.textContent=f.name; sel.appendChild(opt);
     });
+    updateFavQuickRow();
   }
+  function selectedFood(){
+    const id = $('#favSelect').value;
+    return foods.find(f=>f.id===id);
+  }
+  function updateFavQuickRow(){
+    const row = $('#favQuickRow'); row.innerHTML = '';
+    const f = selectedFood(); if(!f) return;
+    (f.quick_amounts||[]).forEach(q=>{
+      const btn = document.createElement('button');
+      btn.textContent = `${q}${f.unit==='g'?'g':''}`;
+      btn.onclick = ()=> addEntryByFood(f.id, q);
+      row.appendChild(btn);
+    });
+  }
+  $('#deleteFav').onclick = ()=>{
+    const f = selectedFood(); if(!f) return;
+    if(confirm(`ลบ "${f.name}" ออกจากรายการโปรด?`)){
+      foods = foods.filter(x=>x.id!==f.id);
+      save(LS.foods, foods);
+      renderFavDropdown(); // refresh dropdown + quick
+    }
+  };
+  $('#favSelect').onchange = updateFavQuickRow;
 
-  // ─── Goal & Summary ──────────────────────────────────────────
+  // ─── Add new favorite ───────────────────────────────────────
+  function addFood(){
+    const name = $('#foodName').value.trim();
+    const unit = $('#unit').value;
+    const kcal_per_unit = Number($('#kcalPerUnit').value);
+    const base_amount = Number($('#baseAmount').value);
+    const quickAmts = $('#quickAmts').value.trim().split(',')
+      .map(s=>Number(s.trim())).filter(n=>!isNaN(n)&&n>0);
+    if(!name || !kcal_per_unit || !base_amount){ alert('กรอกชื่ออาหาร, kcal ต่อหน่วยฐาน, หน่วยฐาน ให้ครบ'); return; }
+    const id = name.toLowerCase().replace(/\s+/g,'_') + '_' + Math.random().toString(36).slice(2,6);
+    foods.push({id,name,unit,kcal_per_unit,base_amount,quick_amounts:quickAmts});
+    save(LS.foods, foods);
+    $('#foodName').value=''; $('#kcalPerUnit').value=''; $('#baseAmount').value=''; $('#quickAmts').value='';
+    renderFavDropdown(); renderNameSuggestions();
+  }
+  $('#addFood').onclick = addFood;
+
+  // ─── Manual add ─────────────────────────────────────────────
+  function addManual(){
+    const name = $('#manualName').value.trim();
+    const kcal = Number($('#manualKcal').value);
+    if(!name || !kcal || kcal<=0){ alert('กรอกชื่อเมนูและ kcal ให้ถูกต้อง'); return; }
+    // เก็บชื่อไว้ใช้เป็น suggestion ครั้งต่อไป
+    if(!manualNames.includes(name)){ manualNames.push(name); save(LS.names, manualNames); renderNameSuggestions(); }
+    const entry = { _id: crypto.randomUUID(), date: todayISO, created_at:new Date().toISOString(),
+      manual_name: name, amount: '', kcal: Math.round(kcal) };
+    entries.push(entry); save(LS.entries, entries);
+    $('#manualName').value=''; $('#manualKcal').value='';
+    renderEntries(); updateChart();
+  }
+  $('#addManual').onclick = addManual;
+
+  // ─── Goal & Summary ─────────────────────────────────────────
   const sumDayKcal  = iso => entries.filter(e=>e.date===iso).reduce((a,e)=>a+e.kcal,0);
   const sumTodayKcal= ()=> sumDayKcal(todayISO);
 
@@ -896,17 +924,26 @@
     $('#sumToday').textContent = sum.toFixed(0);
   }
   function renderGoal(){ $('#goal').value = settings.daily_goal_kcal ?? ''; updateTodaySummary(); }
+  $('#saveGoal').onclick = ()=>{ const v=Number($('#goal').value); if(!v||v<=0) return alert('ระบุเป้าหมายให้ถูกต้อง');
+    settings.daily_goal_kcal=v; save(LS.settings, settings); updateTodaySummary(); updateChart(); };
 
-  // ─── Entries Table ───────────────────────────────────────────
+  // ─── Entries Table ──────────────────────────────────────────
   function renderEntries(){
     const tb = $('#entriesTbody'); tb.innerHTML = '';
     entries.filter(e=>e.date===todayISO).sort((a,b)=>a.created_at.localeCompare(b.created_at)).forEach(e=>{
-      const food = foods.find(x=>x.id===e.food_id);
+      // ชื่อเมนู: จาก food_id หรือ manual_name
+      let name = e.manual_name || '';
+      let unitTxt = '';
+      if(e.food_id){
+        const f = foods.find(x=>x.id===e.food_id);
+        name = f?f.name:'(เมนูถูกลบ)';
+        unitTxt = f?(f.unit==='g'?'g':'เสิร์ฟ'):'';
+      }
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${new Date(e.created_at).toLocaleTimeString()}</td>
-        <td>${food?food.name:'(เมนูถูกลบ)'}</td>
-        <td>${e.amount} ${food?(food.unit==='g'?'g':'เสิร์ฟ'):''}</td>
+        <td>${name}</td>
+        <td>${e.amount? e.amount + ' ' + unitTxt : '-'}</td>
         <td>${e.kcal.toFixed(0)}</td>
         <td><button class="ghost" data-id="${e._id}">ลบ</button></td>`;
       tb.appendChild(tr);
@@ -920,29 +957,25 @@
     updateTodaySummary();
   }
 
-  // ─── Mutations ───────────────────────────────────────────────
+  // ─── Add entry from favorite ─────────────────────────────────
   function addEntryByFood(food_id, amount){
     const f = foods.find(x=>x.id===food_id); if(!f) return;
-    const entry = { _id: crypto.randomUUID(), date: todayISO, created_at:new Date().toISOString(), food_id, amount, kcal: kcalOf(f, amount) };
+    const entry = { _id: crypto.randomUUID(), date: todayISO, created_at:new Date().toISOString(),
+      food_id, amount, kcal: Math.round(kcalOf(f, amount)) };
     entries.push(entry); save(LS.entries, entries);
     renderEntries(); updateChart();
   }
-  function addFood(){
-    const name = $('#foodName').value.trim();
-    const unit = $('#unit').value;
-    const kcal_per_unit = Number($('#kcalPerUnit').value);
-    const base_amount = Number($('#baseAmount').value);
-    const quickAmts = $('#quickAmts').value.trim().split(',').map(s=>Number(s.trim())).filter(n=>!isNaN(n)&&n>0);
-    if(!name || !kcal_per_unit || !base_amount){ alert('กรอกชื่ออาหาร, kcal ต่อหน่วยฐาน, หน่วยฐาน ให้ครบ'); return; }
-    const id = name.toLowerCase().replace(/\s+/g,'_') + '_' + Math.random().toString(36).slice(2,6);
-    foods.push({id,name,unit,kcal_per_unit,base_amount,quick_amounts:quickAmts});
-    save(LS.foods, foods);
-    $('#foodName').value=''; $('#kcalPerUnit').value=''; $('#baseAmount').value=''; $('#quickAmts').value='';
-    renderFoods();
-  }
 
-  // ─── Daily Chart ────────────────────────────────────────────
-  let chart, startOffset = 0; // 0 = วันนี้
+  // ─── Clear today ────────────────────────────────────────────
+  $('#clearToday').onclick = ()=>{
+    if(confirm('ลบรายการของวันนี้ทั้งหมด?')){
+      entries = entries.filter(e=>e.date!==todayISO); save(LS.entries, entries);
+      renderEntries(); updateChart();
+    }
+  };
+
+  // ─── Chart (30-day rolling) ─────────────────────────────────
+  let chart, startOffset = 0;
   const makeRange = (offset30=0)=>{
     const days=30, labels=[], data=[], goalLine=[];
     const goal = Number(settings.daily_goal_kcal||0);
@@ -975,28 +1008,15 @@
     const {labels,data,goalLine} = makeRange(startOffset);
     chart.data.labels=labels; chart.data.datasets[0].data=data; chart.data.datasets[1].data=goalLine; chart.update();
   }
-
-  // ─── Events ─────────────────────────────────────────────────
-  $('#addFood').onclick = addFood;
-  $('#addEntry').onclick = ()=>{
-    const id = $('#foodSelect').value; const amt = Number($('#amount').value);
-    if(!amt || amt<=0) return alert('ใส่จำนวนให้ถูกต้อง'); addEntryByFood(id, amt); $('#amount').value='';
-  };
-  $('#clearToday').onclick = ()=>{
-    if(confirm('ลบรายการของวันนี้ทั้งหมด?')){
-      entries = entries.filter(e=>e.date!==todayISO); save(LS.entries, entries);
-      renderEntries(); updateChart();
-    }
-  };
-  $('#saveGoal').onclick = ()=>{ const v=Number($('#goal').value); if(!v||v<=0) return alert('ระบุเป้าหมายให้ถูกต้อง'); settings.daily_goal_kcal=v; save(LS.settings, settings); updateTodaySummary(); updateChart(); };
   $('#btnPrev').onclick = ()=>{ startOffset+=1; updateChart(); };
   $('#btnNow').onclick  = ()=>{ startOffset=0;  updateChart(); };
 
   // ─── Init ───────────────────────────────────────────────────
-  renderFoods(); renderEntries(); renderGoal();
+  renderFavDropdown(); renderNameSuggestions();
+  renderEntries(); renderGoal();
   if(window.Chart){ buildChart(); } else { window.addEventListener('load', ()=>{ if(window.Chart) buildChart(); }); }
 
-  // ─── PWA: Service Worker & Install ──────────────────────────
+  // ─── PWA SW & Install ───────────────────────────────────────
   if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
   let deferredPrompt=null; const btnInstall=document.getElementById('btnInstall');
   window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt=e; btnInstall.classList.remove('hide'); });
