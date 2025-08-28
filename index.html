@@ -161,16 +161,28 @@
   let settings = load(LS.settings, { daily_goal_kcal: 1800 });
   let manualNames = load(LS.names, []); // เก็บชื่อที่คุณเคยกรอกเอง (สำหรับ suggestion)
 
-  async function fetchFoodsFromJson() {
-    try {
-      const res = await fetch(FOODS_URL, { cache: 'no-store' });
-      if (!res.ok) throw new Error('fetch failed');
-      return await res.json();
-    } catch (e) {
-      console.warn('โหลด foods.json ไม่ได้:', e);
-      return null;
+async function initApp(){
+  if(!Array.isArray(foods) || foods.length === 0){
+    const fromJson = await fetchFoodsFromJson();
+    if(fromJson && Array.isArray(fromJson) && fromJson.length){
+      foods = fromJson;
+      save(LS.foods, foods);
+    }else{
+      // fallback กันพัง
+      foods = [
+        { id:'chicken_shake', name:'อกไก่ปั่น', unit:'serving', kcal_per_unit:300, base_amount:1,   quick_amounts:[1] },
+        { id:'natto',         name:'นัตโตะ',    unit:'g',       kcal_per_unit:100, base_amount:50,  quick_amounts:[50,100,150] },
+        { id:'sweet_potato',  name:'มันหวาน',   unit:'g',       kcal_per_unit:90,  base_amount:100, quick_amounts:[100,200,300] }
+      ];
+      save(LS.foods, foods);
     }
   }
+
+  renderFavDropdown();
+  renderNameSuggestions();
+  renderEntries(); renderGoal();
+  if(window.Chart){ buildChart(); } else { window.addEventListener('load', ()=>{ if(window.Chart) buildChart(); }); }
+}
 
   // ─── Suggestions (รวมจาก foods + manualNames) ──────────────
   function renderNameSuggestions(){
