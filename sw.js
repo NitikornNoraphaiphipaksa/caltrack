@@ -1,4 +1,4 @@
-const CACHE = 'caltrack-v7';
+const CACHE = 'caltrack-v8';
 const ASSETS = [
   './',
   './index.html',
