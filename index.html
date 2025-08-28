@@ -141,13 +141,682 @@
 
   // ─── Data (preset ตามที่ขอ) ─────────────────────────────────
   let foods = load(LS.foods, [
-    // 1) อกไก่ปั่น 1 ขวด = 300 kcal
-    { id:'chicken_shake', name:'อกไก่ปั่น', unit:'serving', kcal_per_unit:300, base_amount:1, quick_amounts:[1] },
-    // 2) นัตโตะ: base 50g = 100 kcal → Quick: 50, 100, 150 g
-    { id:'natto', name:'นัตโตะ', unit:'g', kcal_per_unit:100, base_amount:50, quick_amounts:[50,100,150] },
-    // 3) มันหวาน: base 100g = 90 kcal → Quick: 100, 200, 300 g
-    { id:'sweet_potato', name:'มันหวาน', unit:'g', kcal_per_unit:90, base_amount:100, quick_amounts:[100,200,300] }
-  ]);
+  {
+    "id": "chicken_breast",
+    "name": "อกไก่",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 165,
+    "quick_amounts": [
+      100,
+      150,
+      200,
+      250
+    ]
+  },
+  {
+    "id": "chicken_shake",
+    "name": "อกไก่ปั่น",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 300,
+    "quick_amounts": [
+      1
+    ]
+  },
+  {
+    "id": "egg",
+    "name": "ไข่ไก่",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 70,
+    "quick_amounts": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  {
+    "id": "egg_white",
+    "name": "ไข่ขาว (เฉพาะขาว)",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 17,
+    "quick_amounts": [
+      2,
+      4,
+      6,
+      8
+    ]
+  },
+  {
+    "id": "tuna_water",
+    "name": "ทูน่ากระป๋องในน้ำ",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 120,
+    "quick_amounts": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "salmon",
+    "name": "แซลมอน",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 208,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "tilapia",
+    "name": "ปลานิล",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 128,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "mackerel",
+    "name": "ปลาทู (นึ่ง/ย่าง)",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 205,
+    "quick_amounts": [
+      80,
+      100,
+      150
+    ]
+  },
+  {
+    "id": "seabass",
+    "name": "ปลากะพงขาว",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 124,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "tofu_firm",
+    "name": "เต้าหู้แข็ง",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 76,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "tofu_egg",
+    "name": "เต้าหู้ไข่",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 90,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "tempeh",
+    "name": "เทมเป้",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 193,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "natto",
+    "name": "นัตโตะ",
+    "unit": "g",
+    "base_amount": 50,
+    "kcal_per_unit": 100,
+    "quick_amounts": [
+      50,
+      100,
+      150
+    ]
+  },
+  {
+    "id": "greek_yogurt",
+    "name": "โยเกิร์ตกรีก",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 140,
+    "quick_amounts": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "skim_milk",
+    "name": "นมจืดไขมัน 0%",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 90,
+    "quick_amounts": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "whey",
+    "name": "เวย์โปรตีน (1 scoop)",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 120,
+    "quick_amounts": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "cottage_cheese",
+    "name": "คอทเทจชีส",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 98,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "shrimp",
+    "name": "กุ้งต้ม",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 99,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "lean_pork",
+    "name": "สันในหมู (ไม่ติดมัน)",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 143,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "lean_beef",
+    "name": "เนื้อวัวไม่ติดมัน",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 187,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "jasmine_rice",
+    "name": "ข้าวหอมมะลิสุก",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 130,
+    "quick_amounts": [
+      100,
+      150,
+      200,
+      250
+    ]
+  },
+  {
+    "id": "brown_rice",
+    "name": "ข้าวกล้องสุก",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 111,
+    "quick_amounts": [
+      100,
+      150,
+      200,
+      250
+    ]
+  },
+  {
+    "id": "riceberry",
+    "name": "ข้าวไรซ์เบอร์รี่สุก",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 120,
+    "quick_amounts": [
+      100,
+      150,
+      200,
+      250
+    ]
+  },
+  {
+    "id": "sticky_rice",
+    "name": "ข้าวเหนียวสุก",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 168,
+    "quick_amounts": [
+      50,
+      100,
+      150
+    ]
+  },
+  {
+    "id": "oats",
+    "name": "ข้าวโอ๊ตดิบ",
+    "unit": "g",
+    "base_amount": 50,
+    "kcal_per_unit": 190,
+    "quick_amounts": [
+      30,
+      40,
+      50,
+      60
+    ]
+  },
+  {
+    "id": "sweet_potato",
+    "name": "มันหวาน",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 90,
+    "quick_amounts": [
+      100,
+      200,
+      300
+    ]
+  },
+  {
+    "id": "potato",
+    "name": "มันฝรั่ง",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 77,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "pumpkin",
+    "name": "ฟักทอง",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 26,
+    "quick_amounts": [
+      100,
+      200,
+      300
+    ]
+  },
+  {
+    "id": "bananas",
+    "name": "กล้วยหอม",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 105,
+    "quick_amounts": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "apple",
+    "name": "แอปเปิล",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 95,
+    "quick_amounts": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "orange",
+    "name": "ส้ม",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 62,
+    "quick_amounts": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "watermelon",
+    "name": "แตงโม",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 30,
+    "quick_amounts": [
+      100,
+      200,
+      300
+    ]
+  },
+  {
+    "id": "wholewheat_bread",
+    "name": "ขนมปังโฮลวีต",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 120,
+    "quick_amounts": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "id": "rice_noodles",
+    "name": "เส้นหมี่ข้าวกล้องสุก",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 109,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "glass_noodles",
+    "name": "วุ้นเส้นสุก",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 70,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "konjac",
+    "name": "เส้นบุก",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 10,
+    "quick_amounts": [
+      100,
+      200,
+      300
+    ]
+  },
+  {
+    "id": "corn",
+    "name": "ข้าวโพดต้ม",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 96,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "quinoa",
+    "name": "ควินัวสุก",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 120,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "broccoli",
+    "name": "บรอกโคลี",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 34,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "spinach",
+    "name": "ผักโขม",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 23,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "cabbage",
+    "name": "กะหล่ำปลี",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 25,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "lettuce",
+    "name": "ผักกาดหอม",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 15,
+    "quick_amounts": [
+      50,
+      100,
+      150
+    ]
+  },
+  {
+    "id": "cucumber",
+    "name": "แตงกวา",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 16,
+    "quick_amounts": [
+      100,
+      200,
+      300
+    ]
+  },
+  {
+    "id": "carrot",
+    "name": "แครอท",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 41,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "mushroom",
+    "name": "เห็ดนางฟ้า/เห็ดฟาง",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 22,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "tomato",
+    "name": "มะเขือเทศ",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 18,
+    "quick_amounts": [
+      100,
+      150,
+      200
+    ]
+  },
+  {
+    "id": "olive_oil",
+    "name": "น้ำมันมะกอก (1 ช้อนโต๊ะ)",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 120,
+    "quick_amounts": [
+      0.5,
+      1,
+      1.5
+    ]
+  },
+  {
+    "id": "almonds",
+    "name": "อัลมอนด์",
+    "unit": "g",
+    "base_amount": 30,
+    "kcal_per_unit": 173,
+    "quick_amounts": [
+      15,
+      30,
+      45
+    ]
+  },
+  {
+    "id": "cashews",
+    "name": "เม็ดมะม่วงหิมพานต์",
+    "unit": "g",
+    "base_amount": 30,
+    "kcal_per_unit": 165,
+    "quick_amounts": [
+      15,
+      30,
+      45
+    ]
+  },
+  {
+    "id": "peanuts",
+    "name": "ถั่วลิสงคั่ว",
+    "unit": "g",
+    "base_amount": 30,
+    "kcal_per_unit": 170,
+    "quick_amounts": [
+      15,
+      30,
+      45
+    ]
+  },
+  {
+    "id": "avocado",
+    "name": "อะโวคาโด",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 240,
+    "quick_amounts": [
+      0.5,
+      1
+    ]
+  },
+  {
+    "id": "peanut_butter",
+    "name": "เนยถั่ว (1 ช้อนโต๊ะ)",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 95,
+    "quick_amounts": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "pad_kra_pao_chicken_lean",
+    "name": "ผัดกะเพราอกไก่ (น้ำมันน้อย)",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 350,
+    "quick_amounts": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "tom_yum_shrimp_clear",
+    "name": "ต้มยำกุ้งน้ำใส",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 150,
+    "quick_amounts": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "larb_chicken",
+    "name": "ลาบไก่ (ไม่ใส่หนัง)",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 200,
+    "quick_amounts": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "grilled_chicken_thigh_skinless",
+    "name": "ไก่ย่าง (เลาะหนัง)",
+    "unit": "g",
+    "base_amount": 100,
+    "kcal_per_unit": 165,
+    "quick_amounts": [
+      80,
+      100,
+      150
+    ]
+  },
+  {
+    "id": "boiled_chicken_rice_light",
+    "name": "ข้าวหน้าอกไก่ต้ม (ข้าวกล้อง 150g)",
+    "unit": "serving",
+    "base_amount": 1,
+    "kcal_per_unit": 430,
+    "quick_amounts": [
+      1
+    ]
+  }
+]);
   let entries = load(LS.entries, []);
   let settings = load(LS.settings, { daily_goal_kcal: 1800 });
 
