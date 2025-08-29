@@ -9,7 +9,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
   <style>
     :root { --pad:14px; --radius:14px; --fg:#111; --muted:#666; --line:#e8e8e8; }
@@ -45,7 +44,6 @@
   </header>
 
   <main>
-    <!-- ส่วนหัว + เป้าหมาย -->
     <section class="card">
       <div class="row">
         <div>
@@ -64,7 +62,6 @@
       <p id="todaySummary" class="muted" style="margin:10px 0 0"></p>
     </section>
 
-    <!-- เพิ่มเมนูโปรด -->
     <section class="card">
       <h3 style="margin:0 0 8px">เพิ่มเมนูโปรด</h3>
       <div class="row">
@@ -87,7 +84,6 @@
       </p>
     </section>
 
-    <!-- รายการโปรด: Dropdown + Quick + ลบ -->
     <section class="card">
       <h3 style="margin:0 0 8px">รายการโปรด (เลือกจาก Dropdown แล้วกดจำนวน)</h3>
       <div class="row">
@@ -97,7 +93,6 @@
       <div class="row" id="favQuickRow" style="margin-top:8px"></div>
     </section>
 
-    <!-- บันทึกแบบกรอกเอง -->
     <section class="card">
       <h3 style="margin:0 0 8px">บันทึกแบบกรอกเอง (Manual)</h3>
       <div class="row">
@@ -109,7 +104,6 @@
       <p class="muted" style="margin-top:6px">เหมาะกับเมนูที่ไม่ได้อยู่ในรายการโปรด พิมพ์ชื่อ + ใส่ kcal แล้วกดบันทึก</p>
     </section>
 
-    <!-- ตารางวันนี้ -->
     <section class="card">
       <h3 style="margin:0 0 8px">บันทึกวันนี้</h3>
       <table>
@@ -122,7 +116,6 @@
       </div>
     </section>
 
-    <!-- กราฟ -->
     <section class="card">
       <h3 style="margin:0 0 8px">กราฟแคลอรี่รายวัน (ย้อนหลัง 30 วัน)</h3>
       <div class="row" style="margin-bottom:6px">
@@ -142,10 +135,8 @@
   </div>
 
 <script defer>
-  // ─── คีย์เก็บข้อมูลในเครื่อง ─────────────────────────────
   const LS = { foods:'ctm_foods', entries:'ctm_entries', settings:'ctm_settings', names:'ctm_manual_names' };
 
-  // ─── Utils ───────────────────────────────────────────────────
   const $ = s => document.querySelector(s);
   const toISO = d => new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
   const todayISO = toISO(new Date());
@@ -154,37 +145,25 @@
   const load = (k,f)=>{ try{ return JSON.parse(localStorage.getItem(k)) ?? f; }catch{ return f; } }
   const save = (k,v)=> localStorage.setItem(k, JSON.stringify(v));
 
-  // ─── ข้อมูลหลัก ─────────────────────────────────────────────
-  const FOODS_URL = './foods.json'; // ถ้าเก็บใน data/ ให้เปลี่ยนเป็น './data/foods.json'
-  let foods = load(LS.foods, null);     // ถ้าเคยมีในเครื่อง ใช้ของเดิมก่อน
+  const FOODS_URL = './foods.json';
+  let foods = load(LS.foods, null);
   let entries = load(LS.entries, []);
   let settings = load(LS.settings, { daily_goal_kcal: 1800 });
-  let manualNames = load(LS.names, []); // เก็บชื่อที่คุณเคยกรอกเอง (สำหรับ suggestion)
+  let manualNames = load(LS.names, []);
 
-async function initApp(){
-  if(!Array.isArray(foods) || foods.length === 0){
-    const fromJson = await fetchFoodsFromJson();
-    if(fromJson && Array.isArray(fromJson) && fromJson.length){
-      foods = fromJson;
-      save(LS.foods, foods);
-    }else{
-      // fallback กันพัง
-      foods = [
-        { id:'chicken_shake', name:'อกไก่ปั่น', unit:'serving', kcal_per_unit:300, base_amount:1,   quick_amounts:[1] },
-        { id:'natto',         name:'นัตโตะ',    unit:'g',       kcal_per_unit:100, base_amount:50,  quick_amounts:[50,100,150] },
-        { id:'sweet_potato',  name:'มันหวาน',   unit:'g',       kcal_per_unit:90,  base_amount:100, quick_amounts:[100,200,300] }
-      ];
-      save(LS.foods, foods);
+  // >>> missing before: define fetchFoodsFromJson <<<
+  async function fetchFoodsFromJson(){
+    try{
+      const res = await fetch(FOODS_URL, { cache: 'no-store' });
+      if(!res.ok) throw new Error('fetch failed');
+      return await res.json();
+    }catch(err){
+      console.warn('โหลด foods.json ไม่ได้:', err);
+      return null;
     }
   }
 
-  renderFavDropdown();
-  renderNameSuggestions();
-  renderEntries(); renderGoal();
-  if(window.Chart){ buildChart(); } else { window.addEventListener('load', ()=>{ if(window.Chart) buildChart(); }); }
-}
-
-  // ─── Suggestions (รวมจาก foods + manualNames) ──────────────
+  // suggestions (foods + manualNames)
   function renderNameSuggestions(){
     const dl = document.getElementById('nameSuggestions');
     if (!dl) return;
@@ -200,7 +179,6 @@ async function initApp(){
     });
   }
 
-  // ─── Favorites dropdown + quick + delete ────────────────────
   function renderFavDropdown(){
     const sel = $('#favSelect'); sel.innerHTML = '';
     foods.forEach(f=>{
@@ -208,10 +186,7 @@ async function initApp(){
     });
     updateFavQuickRow();
   }
-  function selectedFood(){
-    const id = $('#favSelect').value;
-    return foods.find(f=>f.id===id);
-  }
+  function selectedFood(){ const id = $('#favSelect').value; return foods.find(f=>f.id===id); }
   function updateFavQuickRow(){
     const row = $('#favQuickRow'); row.innerHTML = '';
     const f = selectedFood(); if(!f) return;
@@ -229,29 +204,26 @@ async function initApp(){
       foods = foods.filter(x=>x.id!==f.id);
       save(LS.foods, foods);
       renderFavDropdown();
-      renderNameSuggestions(); // อัปเดตคำแนะนำหลังลบ
+      renderNameSuggestions();
     }
   };
 
-  // ─── เพิ่มเมนูโปรด ─────────────────────────────────────────
   function addFood(){
     const name = $('#foodName').value.trim();
     const unit = $('#unit').value;
     const kcal_per_unit = Number($('#kcalPerUnit').value);
     const base_amount = Number($('#baseAmount').value);
-    const quickAmts = $('#quickAmts').value.trim().split(',')
-      .map(s=>Number(s.trim())).filter(n=>!isNaN(n)&&n>0);
+    const quickAmts = $('#quickAmts').value.trim().split(',').map(s=>Number(s.trim())).filter(n=>!isNaN(n)&&n>0);
     if(!name || !kcal_per_unit || !base_amount){ alert('กรอกชื่ออาหาร, kcal ต่อหน่วยฐาน, หน่วยฐาน ให้ครบ'); return; }
     const id = name.toLowerCase().replace(/\s+/g,'_') + '_' + Math.random().toString(36).slice(2,6);
     foods.push({id,name,unit,kcal_per_unit,base_amount,quick_amounts:quickAmts});
     save(LS.foods, foods);
     $('#foodName').value=''; $('#kcalPerUnit').value=''; $('#baseAmount').value=''; $('#quickAmts').value='';
     renderFavDropdown();
-    renderNameSuggestions(); // อัปเดตคำแนะนำหลังเพิ่ม
+    renderNameSuggestions();
   }
   $('#addFood').onclick = addFood;
 
-  // ─── บันทึกแบบกรอกเอง ─────────────────────────────────────
   function addManual(){
     const name = $('#manualName').value.trim();
     const kcal = Number($('#manualKcal').value);
@@ -259,7 +231,7 @@ async function initApp(){
     if(!manualNames.includes(name)){
       manualNames.push(name);
       save(LS.names, manualNames);
-      renderNameSuggestions(); // อัปเดตคำแนะนำเมื่อมีชื่อใหม่
+      renderNameSuggestions();
     }
     const entry = { _id: crypto.randomUUID(), date: todayISO, created_at:new Date().toISOString(),
       manual_name: name, amount: '', kcal: Math.round(kcal) };
@@ -269,7 +241,6 @@ async function initApp(){
   }
   $('#addManual').onclick = addManual;
 
-  // ─── ตารางวันนี้ + สรุป ────────────────────────────────────
   const kcalOf = (food, amount)=> (amount / food.base_amount) * food.kcal_per_unit;
   const sumDayKcal  = iso => entries.filter(e=>e.date===iso).reduce((a,e)=>a+e.kcal,0);
   const sumTodayKcal= ()=> sumDayKcal(todayISO);
@@ -326,7 +297,6 @@ async function initApp(){
     }
   };
 
-  // ─── กราฟ 30 วัน ───────────────────────────────────────────
   let chart, startOffset = 0;
   const makeRange = (offset30=0)=>{
     const days=30, labels=[], data=[], goalLine=[];
@@ -363,14 +333,13 @@ async function initApp(){
   $('#btnPrev').onclick = ()=>{ startOffset+=1; updateChart(); };
   $('#btnNow').onclick  = ()=>{ startOffset=0;  updateChart(); };
 
-  // ─── เริ่มต้นแอป (โหลด foods.json ถ้าจำเป็น) ───────────────
+  // >>> Single, correct initApp <<<
   async function initApp(){
-    if(!foods){
+    if(!Array.isArray(foods) || foods.length === 0){
       const fromJson = await fetchFoodsFromJson();
       if(fromJson && Array.isArray(fromJson) && fromJson.length){
         foods = fromJson; save(LS.foods, foods);
       }else{
-        // fallback กันพัง
         foods = [
           { id:'chicken_shake', name:'อกไก่ปั่น', unit:'serving', kcal_per_unit:300, base_amount:1,   quick_amounts:[1] },
           { id:'natto',         name:'นัตโตะ',    unit:'g',       kcal_per_unit:100, base_amount:50,  quick_amounts:[50,100,150] },
@@ -381,12 +350,10 @@ async function initApp(){
     }
 
     renderFavDropdown();
-    renderNameSuggestions();   // ← สำคัญ: เติม datalist จาก foods.json
+    renderNameSuggestions();
     renderEntries(); renderGoal();
-
     if(window.Chart){ buildChart(); } else { window.addEventListener('load', ()=>{ if(window.Chart) buildChart(); }); }
 
-    // PWA: Service Worker & Install
     if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
     let deferredPrompt=null; const btnInstall=document.getElementById('btnInstall');
     window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt=e; btnInstall.classList.remove('hide'); });
