@@ -1,5 +1,5 @@
 // sw.js
-const CACHE = 'caltrack-v11';
+const CACHE = 'caltrack-v12';
 
 // ไฟล์ที่ต้องใช้เสมอให้ออฟไลน์ได้ (precache)
 const ASSETS = [
