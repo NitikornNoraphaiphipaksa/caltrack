@@ -44,6 +44,7 @@
   </header>
 
   <main>
+    <!-- ส่วนหัว + เป้าหมาย kcal -->
     <section class="card">
       <div class="row">
         <div>
@@ -62,6 +63,7 @@
       <p id="todaySummary" class="muted" style="margin:10px 0 0"></p>
     </section>
 
+    <!-- เพิ่มเมนูโปรด -->
     <section class="card">
       <h3 style="margin:0 0 8px">เพิ่มเมนูโปรด</h3>
       <div class="row">
@@ -84,6 +86,7 @@
       </p>
     </section>
 
+    <!-- รายการโปรด -->
     <section class="card">
       <h3 style="margin:0 0 8px">รายการโปรด (เลือกจาก Dropdown แล้วกดจำนวน)</h3>
       <div class="row">
@@ -93,6 +96,7 @@
       <div class="row" id="favQuickRow" style="margin-top:8px"></div>
     </section>
 
+    <!-- บันทึกแบบกรอกเอง -->
     <section class="card">
       <h3 style="margin:0 0 8px">บันทึกแบบกรอกเอง (Manual)</h3>
       <div class="row">
@@ -104,6 +108,7 @@
       <p class="muted" style="margin-top:6px">เหมาะกับเมนูที่ไม่ได้อยู่ในรายการโปรด พิมพ์ชื่อ + ใส่ kcal แล้วกดบันทึก</p>
     </section>
 
+    <!-- ตารางวันนี้ -->
     <section class="card">
       <h3 style="margin:0 0 8px">บันทึกวันนี้</h3>
       <table>
@@ -116,6 +121,7 @@
       </div>
     </section>
 
+    <!-- กราฟ -->
     <section class="card">
       <h3 style="margin:0 0 8px">กราฟแคลอรี่รายวัน (ย้อนหลัง 30 วัน)</h3>
       <div class="row" style="margin-bottom:6px">
@@ -128,6 +134,25 @@
         <canvas id="dailyChart" height="220" aria-label="กราฟแคลอรี่ต่อวัน"></canvas>
       </div>
     </section>
+
+    <!-- ✅ ใหม่: สรุปสารอาหารวันนี้ + ตั้งเป้าหมาย (P/F/C) -->
+    <section class="card">
+      <h3 style="margin:0 0 8px">สัดส่วนสารอาหาร (วันนี้ / เป้าหมาย)</h3>
+      <div class="row">
+        <div class="muted">วันนี้</div>
+        <div id="macrosConsumed" style="font-weight:600">P 0g / F 0g / C 0g</div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <input id="macroGoalInput" placeholder="เช่น P 168 / F 62 / C 251" style="flex:2">
+        <button id="saveMacroGoal" class="primary">บันทึกเป้าหมาย</button>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <div class="muted">เป้าหมาย</div>
+        <div id="macrosGoal" style="font-weight:600">P 0g / F 0g / C 0g</div>
+      </div>
+      <p id="macrosStatus" class="muted" style="margin-top:6px"></p>
+    </section>
+
   </main>
 
   <div class="fab">
@@ -135,8 +160,8 @@
   </div>
 
 <script defer>
+  /* ====== โค้ดเดิม ====== */
   const LS = { foods:'ctm_foods', entries:'ctm_entries', settings:'ctm_settings', names:'ctm_manual_names' };
-
   const $ = s => document.querySelector(s);
   const toISO = d => new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
   const todayISO = toISO(new Date());
@@ -148,10 +173,9 @@
   const FOODS_URL = './foods.json';
   let foods = load(LS.foods, null);
   let entries = load(LS.entries, []);
-  let settings = load(LS.settings, { daily_goal_kcal: 1800 });
+  let settings = load(LS.settings, { daily_goal_kcal: 1800 });   // ← จะเพิ่ม goal macros แยกในคีย์ใหม่ด้านล่าง
   let manualNames = load(LS.names, []);
 
-  // >>> missing before: define fetchFoodsFromJson <<<
   async function fetchFoodsFromJson(){
     try{
       const res = await fetch(FOODS_URL, { cache: 'no-store' });
@@ -163,19 +187,36 @@
     }
   }
 
-  // suggestions (foods + manualNames)
+  // ====== ต่อเติม: default quick + prefill เพิ่มเมนู (เดิมเพิ่มไว้แล้ว) ======
+  function defaultQuickForUnit(unit){ return unit === 'serving' ? [1,2,3] : [100,150,200]; }
+  function prefillFromKnown(name){
+    const item = foods.find(x => x.name === name);
+    if(!item){
+      $('#unit').value = 'g'; $('#kcalPerUnit').value = ''; $('#baseAmount').value = 100;
+      $('#quickAmts').value = defaultQuickForUnit('g').join(','); return;
+    }
+    $('#unit').value = item.unit || 'g';
+    $('#kcalPerUnit').value = item.kcal_per_unit ?? '';
+    $('#baseAmount').value = item.base_amount ?? (item.unit==='serving' ? 1 : 100);
+    const q = (Array.isArray(item.quick_amounts) && item.quick_amounts.length) ? item.quick_amounts : defaultQuickForUnit(item.unit);
+    $('#quickAmts').value = q.join(',');
+  }
+  $('#foodName').addEventListener('change', e => prefillFromKnown(e.target.value));
+  $('#foodName').addEventListener('blur',   e => prefillFromKnown(e.target.value));
+  $('#unit').addEventListener('change', e=>{
+    const unit = e.target.value, def = defaultQuickForUnit(unit).join(','), val = $('#quickAmts').value.trim();
+    if(!val || val==='100,150,200' || val==='1,2,3'){ $('#quickAmts').value = def; }
+    $('#baseAmount').value = unit==='serving' ? 1 : 100;
+  });
+
+  /* ====== โค้ดเดิมต่อ: suggestions/favorites/manual/entries/chart/goal/initApp ====== */
   function renderNameSuggestions(){
     const dl = document.getElementById('nameSuggestions');
     if (!dl) return;
     dl.innerHTML = '';
-    const uniq = new Set([
-      ...foods.map(f => f.name).filter(Boolean),
-      ...manualNames
-    ]);
+    const uniq = new Set([...foods.map(f => f.name).filter(Boolean), ...manualNames]);
     [...uniq].sort((a,b)=>a.localeCompare(b,'th')).forEach(n=>{
-      const opt = document.createElement('option');
-      opt.value = n;
-      dl.appendChild(opt);
+      const opt = document.createElement('option'); opt.value = n; dl.appendChild(opt);
     });
   }
 
@@ -190,7 +231,8 @@
   function updateFavQuickRow(){
     const row = $('#favQuickRow'); row.innerHTML = '';
     const f = selectedFood(); if(!f) return;
-    (f.quick_amounts||[]).forEach(q=>{
+    const qu = (Array.isArray(f.quick_amounts) && f.quick_amounts.length) ? f.quick_amounts : defaultQuickForUnit(f.unit);
+    qu.forEach(q=>{
       const btn = document.createElement('button');
       btn.textContent = `${q}${f.unit==='g'?'g':''}`;
       btn.onclick = ()=> addEntryByFood(f.id, q);
@@ -203,8 +245,7 @@
     if(confirm(`ลบ "${f.name}" ออกจากรายการโปรด?`)){
       foods = foods.filter(x=>x.id!==f.id);
       save(LS.foods, foods);
-      renderFavDropdown();
-      renderNameSuggestions();
+      renderFavDropdown(); renderNameSuggestions();
     }
   };
 
@@ -219,8 +260,7 @@
     foods.push({id,name,unit,kcal_per_unit,base_amount,quick_amounts:quickAmts});
     save(LS.foods, foods);
     $('#foodName').value=''; $('#kcalPerUnit').value=''; $('#baseAmount').value=''; $('#quickAmts').value='';
-    renderFavDropdown();
-    renderNameSuggestions();
+    renderFavDropdown(); renderNameSuggestions();
   }
   $('#addFood').onclick = addFood;
 
@@ -228,13 +268,8 @@
     const name = $('#manualName').value.trim();
     const kcal = Number($('#manualKcal').value);
     if(!name || !kcal || kcal<=0){ alert('กรอกชื่อเมนูและ kcal ให้ถูกต้อง'); return; }
-    if(!manualNames.includes(name)){
-      manualNames.push(name);
-      save(LS.names, manualNames);
-      renderNameSuggestions();
-    }
-    const entry = { _id: crypto.randomUUID(), date: todayISO, created_at:new Date().toISOString(),
-      manual_name: name, amount: '', kcal: Math.round(kcal) };
+    if(!manualNames.includes(name)){ manualNames.push(name); save(LS.names, manualNames); renderNameSuggestions(); }
+    const entry = { _id: crypto.randomUUID(), date: todayISO, created_at:new Date().toISOString(), manual_name: name, amount: '', kcal: Math.round(kcal) };
     entries.push(entry); save(LS.entries, entries);
     $('#manualName').value=''; $('#manualKcal').value='';
     renderEntries(); updateChart();
@@ -248,12 +283,10 @@
   function renderEntries(){
     const tb = $('#entriesTbody'); tb.innerHTML = '';
     entries.filter(e=>e.date===todayISO).sort((a,b)=>a.created_at.localeCompare(b.created_at)).forEach(e=>{
-      let name = e.manual_name || '';
-      let unitTxt = '';
+      let name = e.manual_name || ''; let unitTxt = '';
       if(e.food_id){
         const f = foods.find(x=>x.id===e.food_id);
-        name = f?f.name:'(เมนูถูกลบ)';
-        unitTxt = f?(f.unit==='g'?'g':'เสิร์ฟ'):'';
+        name = f?f.name:'(เมนูถูกลบ)'; unitTxt = f?(f.unit==='g'?'g':'เสิร์ฟ'):'';
       }
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -265,10 +298,7 @@
       tb.appendChild(tr);
     });
     tb.querySelectorAll('button[data-id]').forEach(b=>{
-      b.onclick = ()=>{
-        entries = entries.filter(x=>x._id !== b.dataset.id);
-        save(LS.entries, entries); renderEntries(); updateTodaySummary(); updateChart();
-      };
+      b.onclick = ()=>{ entries = entries.filter(x=>x._id !== b.dataset.id); save(LS.entries, entries); renderEntries(); updateTodaySummary(); updateChart(); };
     });
     updateTodaySummary();
   }
@@ -276,26 +306,15 @@
     const sum = sumTodayKcal();
     const goal = Number(settings.daily_goal_kcal||0);
     let text = `วันนี้รวม ${sum.toFixed(0)} kcal`;
-    if(goal>0){
-      const remain = goal - sum;
-      text += ` • เป้า ${goal} • เหลือ ${Math.max(remain,0).toFixed(0)} kcal`;
-    }
-    $('#todaySummary').textContent = text;
-    $('#sumToday').textContent = sum.toFixed(0);
+    if(goal>0){ const remain = goal - sum; text += ` • เป้า ${goal} • เหลือ ${Math.max(remain,0).toFixed(0)} kcal`; }
+    $('#todaySummary').textContent = text; $('#sumToday').textContent = sum.toFixed(0);
   }
   function addEntryByFood(food_id, amount){
     const f = foods.find(x=>x.id===food_id); if(!f) return;
-    const entry = { _id: crypto.randomUUID(), date: todayISO, created_at:new Date().toISOString(),
-      food_id, amount, kcal: Math.round(kcalOf(f, amount)) };
-    entries.push(entry); save(LS.entries, entries);
-    renderEntries(); updateChart();
+    const entry = { _id: crypto.randomUUID(), date: todayISO, created_at:new Date().toISOString(), food_id, amount, kcal: Math.round(kcalOf(f, amount)) };
+    entries.push(entry); save(LS.entries, entries); renderEntries(); updateChart();
   }
-  $('#clearToday').onclick = ()=>{
-    if(confirm('ลบรายการของวันนี้ทั้งหมด?')){
-      entries = entries.filter(e=>e.date!==todayISO); save(LS.entries, entries);
-      renderEntries(); updateChart();
-    }
-  };
+  $('#clearToday').onclick = ()=>{ if(confirm('ลบรายการของวันนี้ทั้งหมด?')){ entries = entries.filter(e=>e.date!==todayISO); save(LS.entries, entries); renderEntries(); updateChart(); } };
 
   let chart, startOffset = 0;
   const makeRange = (offset30=0)=>{
@@ -333,13 +352,14 @@
   $('#btnPrev').onclick = ()=>{ startOffset+=1; updateChart(); };
   $('#btnNow').onclick  = ()=>{ startOffset=0;  updateChart(); };
 
-  // >>> Single, correct initApp <<<
+  function renderGoal(){ $('#goal').value = settings.daily_goal_kcal || ''; }
+  $('#saveGoal').onclick = ()=>{ settings.daily_goal_kcal = Number($('#goal').value)||0; save(LS.settings, settings); updateTodaySummary(); updateChart(); };
+
   async function initApp(){
     if(!Array.isArray(foods) || foods.length === 0){
       const fromJson = await fetchFoodsFromJson();
-      if(fromJson && Array.isArray(fromJson) && fromJson.length){
-        foods = fromJson; save(LS.foods, foods);
-      }else{
+      if(fromJson && Array.isArray(fromJson) && fromJson.length){ foods = fromJson; save(LS.foods, foods); }
+      else{
         foods = [
           { id:'chicken_shake', name:'อกไก่ปั่น', unit:'serving', kcal_per_unit:300, base_amount:1,   quick_amounts:[1] },
           { id:'natto',         name:'นัตโตะ',    unit:'g',       kcal_per_unit:100, base_amount:50,  quick_amounts:[50,100,150] },
@@ -348,19 +368,113 @@
         save(LS.foods, foods);
       }
     }
-
-    renderFavDropdown();
-    renderNameSuggestions();
-    renderEntries(); renderGoal();
+    renderFavDropdown(); renderNameSuggestions(); renderEntries(); renderGoal();
     if(window.Chart){ buildChart(); } else { window.addEventListener('load', ()=>{ if(window.Chart) buildChart(); }); }
-
     if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
     let deferredPrompt=null; const btnInstall=document.getElementById('btnInstall');
     window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt=e; btnInstall.classList.remove('hide'); });
     btnInstall.onclick = async ()=>{ if(!deferredPrompt) return; deferredPrompt.prompt(); const {outcome}=await deferredPrompt.userChoice; deferredPrompt=null; if(outcome!=='dismissed'){ btnInstall.classList.add('hide'); } };
   }
-
   initApp();
+
+  /* ====== ✅ เพิ่มใหม่: คำนวณ/แสดงสารอาหาร + เป้าหมาย และสถานะ ====== */
+
+  // เก็บเป้าหมายแมโครใน settings.daily_goal_macros
+  if(!settings.daily_goal_macros){
+    settings.daily_goal_macros = { P:0, F:0, C:0 };
+    save(LS.settings, settings);
+  }
+
+  function formatMacroTriplet({P=0,F=0,C=0}){ return `P ${Math.round(P)}g / F ${Math.round(F)}g / C ${Math.round(C)}g`; }
+
+  // แปลง input รูปแบบ "P 168 / F 62 / C 251" ให้ยืดหยุ่น
+  function parseMacroInput(str){
+    const out = {P:0,F:0,C:0};
+    if(!str) return out;
+    // ดึงเลขตามลำดับ P,F,C ไม่ว่าพิมพ์อะไรคั่น
+    const nums = (str.match(/[\d.]+/g)||[]).map(Number);
+    if(nums.length>=1) out.P = nums[0];
+    if(nums.length>=2) out.F = nums[1];
+    if(nums.length>=3) out.C = nums[2];
+    return out;
+  }
+
+  // คำนวณรวมแมโครที่กินวันนี้จาก entries + foods.macros_per_unit
+  function computeTodayMacros(){
+    let P=0,F=0,C=0;
+    const todayEntries = entries.filter(e=>e.date===todayISO);
+    for(const e of todayEntries){
+      if(!e.food_id) continue; // manual ยังไม่รองรับแมโคร
+      const f = foods.find(x=>x.id===e.food_id);
+      if(!f || !f.macros_per_unit) continue;
+      const factor = (e.amount || 0) / (f.base_amount || 1);
+      const m = f.macros_per_unit;
+      P += (m.protein||0) * factor;
+      F += (m.fat||0)     * factor;
+      C += (m.carbs||0)   * factor;
+    }
+    return {P, F, C};
+  }
+
+  function renderMacrosUI(){
+    // แสดงที่กินวันนี้
+    const consumed = computeTodayMacros();
+    $('#macrosConsumed').textContent = formatMacroTriplet(consumed);
+
+    // แสดงเป้าหมาย
+    const goal = settings.daily_goal_macros || {P:0,F:0,C:0};
+    $('#macrosGoal').textContent = formatMacroTriplet(goal);
+
+    // คำนวณส่วนต่าง (เป้าหมาย - ที่กินวันนี้)
+    const diff = { P: goal.P - consumed.P, F: goal.F - consumed.F, C: goal.C - consumed.C };
+
+    // สถานะ
+    const under = (diff.P>0) || (diff.F>0) || (diff.C>0);
+    const over  = (diff.P<0) || (diff.F<0) || (diff.C<0);
+
+    let msg = '';
+    const parts = [];
+    if(diff.P!==0) parts.push(`P ${Math.abs(Math.round(diff.P))}g`);
+    if(diff.F!==0) parts.push(`F ${Math.abs(Math.round(diff.F))}g`);
+    if(diff.C!==0) parts.push(`C ${Math.abs(Math.round(diff.C))}g`);
+
+    if(under && !over){
+      msg = 'ยังทานอาหารไม่เพียงพอ • ขาด '+parts.join(' / ');
+    }else if(over && !under){
+      msg = 'ทานอาหารเกินกว่าปริมาณที่จำเป็น • เกิน '+parts.join(' / ');
+    }else if(under && over){
+      msg = 'บางส่วนยังขาด และบางส่วนเกิน • ส่วนต่าง: '+parts.join(' / ');
+    }else{
+      msg = 'พอดีตามเป้าหมาย';
+    }
+    $('#macrosStatus').textContent = msg;
+  }
+
+  // บันทึกเป้าหมายจากช่อง input
+  $('#saveMacroGoal').onclick = ()=>{
+    const val = $('#macroGoalInput').value;
+    const parsed = parseMacroInput(val);
+    settings.daily_goal_macros = parsed;
+    save(LS.settings, settings);
+    $('#macroGoalInput').value = ''; // เคลียร์ช่อง
+    renderMacrosUI();
+  };
+
+  // เติมค่าเป้าหมายใน UI เมื่อเปิดหน้า
+  (function initMacroGoalUI(){
+    const g = settings.daily_goal_macros || {P:0,F:0,C:0};
+    $('#macrosGoal').textContent = formatMacroTriplet(g);
+  })();
+
+  // ✅ ไม่แก้โค้ดเดิม แต่ให้ UI แมโครอัปเดต “ตามหลัง” ทุกครั้งที่มีการ render รายการ
+  const __renderEntries = renderEntries;           // เก็บของเดิม
+  renderEntries = function(){                      // ห่อด้วยฟังก์ชันใหม่
+    __renderEntries();                             // เรียกของเดิม
+    try{ renderMacrosUI(); }catch(e){}
+  };
+
+  // อัปเดตครั้งแรกตอนโหลด
+  document.addEventListener('DOMContentLoaded', ()=>{ try{ renderMacrosUI(); }catch(e){} });
 </script>
 </body>
 </html>
