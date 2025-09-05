@@ -10,7 +10,12 @@
       150,
       200,
       250
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 31,
+      "carbs": 0,
+      "fat": 3.6
+    }
   },
   {
     "id": "chicken_shake",
@@ -20,7 +25,12 @@
     "kcal_per_unit": 300,
     "quick_amounts": [
       1
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 35,
+      "carbs": 20,
+      "fat": 6
+    }
   },
   {
     "id": "egg",
@@ -33,7 +43,12 @@
       2,
       3,
       4
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 13,
+      "carbs": 1,
+      "fat": 11
+    }
   },
   {
     "id": "egg_white",
@@ -46,7 +61,12 @@
       4,
       6,
       8
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "tuna_water",
@@ -57,7 +77,12 @@
     "quick_amounts": [
       1,
       2
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "salmon",
@@ -69,7 +94,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "tilapia",
@@ -81,7 +111,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 20,
+      "carbs": 0,
+      "fat": 2
+    }
   },
   {
     "id": "mackerel",
@@ -93,7 +128,12 @@
       80,
       100,
       150
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "seabass",
@@ -105,7 +145,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "tofu_firm",
@@ -117,7 +162,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "tofu_egg",
@@ -129,7 +179,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "tempeh",
@@ -141,7 +196,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "natto",
@@ -153,7 +213,12 @@
       50,
       100,
       150
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 10,
+      "carbs": 8,
+      "fat": 5
+    }
   },
   {
     "id": "greek_yogurt",
@@ -164,7 +229,12 @@
     "quick_amounts": [
       1,
       2
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "skim_milk",
@@ -175,7 +245,12 @@
     "quick_amounts": [
       1,
       2
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "whey",
@@ -186,7 +261,12 @@
     "quick_amounts": [
       1,
       2
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "cottage_cheese",
@@ -198,7 +278,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "shrimp",
@@ -210,7 +295,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "lean_pork",
@@ -222,7 +312,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "lean_beef",
@@ -234,7 +329,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "jasmine_rice",
@@ -247,7 +347,12 @@
       150,
       200,
       250
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "brown_rice",
@@ -260,7 +365,12 @@
       150,
       200,
       250
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "riceberry",
@@ -273,7 +383,12 @@
       150,
       200,
       250
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "sticky_rice",
@@ -285,7 +400,12 @@
       50,
       100,
       150
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "oats",
@@ -298,7 +418,12 @@
       40,
       50,
       60
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "sweet_potato",
@@ -310,7 +435,12 @@
       100,
       200,
       300
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 1.6,
+      "carbs": 21,
+      "fat": 0.1
+    }
   },
   {
     "id": "potato",
@@ -322,7 +452,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "pumpkin",
@@ -334,7 +469,12 @@
       100,
       200,
       300
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "bananas",
@@ -345,7 +485,12 @@
     "quick_amounts": [
       1,
       2
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "apple",
@@ -356,7 +501,12 @@
     "quick_amounts": [
       1,
       2
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0.3,
+      "carbs": 14,
+      "fat": 0.2
+    }
   },
   {
     "id": "orange",
@@ -367,7 +517,12 @@
     "quick_amounts": [
       1,
       2
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "watermelon",
@@ -379,7 +534,12 @@
       100,
       200,
       300
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "wholewheat_bread",
@@ -391,7 +551,12 @@
       1,
       2,
       3
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "rice_noodles",
@@ -403,7 +568,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "glass_noodles",
@@ -415,7 +585,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "konjac",
@@ -427,7 +602,12 @@
       100,
       200,
       300
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "corn",
@@ -439,7 +619,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "quinoa",
@@ -451,7 +636,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "broccoli",
@@ -463,7 +653,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 2.8,
+      "carbs": 7,
+      "fat": 0.4
+    }
   },
   {
     "id": "spinach",
@@ -475,7 +670,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "cabbage",
@@ -487,7 +687,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "lettuce",
@@ -499,7 +704,12 @@
       50,
       100,
       150
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 1.4,
+      "carbs": 3,
+      "fat": 0.2
+    }
   },
   {
     "id": "cucumber",
@@ -511,7 +721,12 @@
       100,
       200,
       300
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "carrot",
@@ -523,7 +738,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0.9,
+      "carbs": 10,
+      "fat": 0.2
+    }
   },
   {
     "id": "mushroom",
@@ -535,7 +755,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "tomato",
@@ -547,7 +772,12 @@
       100,
       150,
       200
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "olive_oil",
@@ -559,7 +789,12 @@
       0.5,
       1,
       1.5
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "almonds",
@@ -571,7 +806,12 @@
       15,
       30,
       45
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 21,
+      "carbs": 22,
+      "fat": 50
+    }
   },
   {
     "id": "cashews",
@@ -583,7 +823,12 @@
       15,
       30,
       45
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "peanuts",
@@ -595,7 +840,12 @@
       15,
       30,
       45
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "avocado",
@@ -606,7 +856,12 @@
     "quick_amounts": [
       0.5,
       1
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "peanut_butter",
@@ -617,7 +872,12 @@
     "quick_amounts": [
       1,
       2
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "pad_kra_pao_chicken_lean",
@@ -628,7 +888,12 @@
     "quick_amounts": [
       1,
       2
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "tom_yum_shrimp_clear",
@@ -639,7 +904,12 @@
     "quick_amounts": [
       1,
       2
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "larb_chicken",
@@ -650,7 +920,12 @@
     "quick_amounts": [
       1,
       2
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "grilled_chicken_thigh_skinless",
@@ -662,7 +937,12 @@
       80,
       100,
       150
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   },
   {
     "id": "boiled_chicken_rice_light",
@@ -672,6 +952,11 @@
     "kcal_per_unit": 430,
     "quick_amounts": [
       1
-    ]
+    ],
+    "macros_per_unit": {
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
   }
 ]
